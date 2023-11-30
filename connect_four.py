@@ -23,6 +23,9 @@ class ConnectFour:
         :param columns: The number of columns.
         :param connect_n: How many tiles in a row to win.
         """
+        # Accessed like grid[row][column],
+        # where grid[0][0] is the bottom-left of the grid,
+        # and grid[0][columns] is the bottom-right of the grid.
         self.grid: TileGrid = [[]]
         self.column_heights: List[int] = []
         self.rows: int = rows
