@@ -9,7 +9,8 @@ Tiles = List[Tile]
 TileGrid = List[Tiles]
 
 Cell = Tuple[int, int]
-Cells = Tuple[Cell]
+Connection = Tuple[Cell]
+Connections = List[Connection]
 
 
 class ConnectFour:
@@ -86,21 +87,27 @@ class ConnectFour:
         :return: The winner of the game,
                  or None if the game is either not over or ended in a draw.
         """
-        cells = self.winning_cells()
-        if cells is None:
+        connections = self.winning_connections()
+        if not connections:
             return None
-        return self.grid[cells[0][0]][cells[0][1]]
+        return self.grid[connections[0][0][0]][connections[0][0][1]]
 
-    def winning_cells(self) -> Optional[Cells]:
+    def winning_connections(self) -> List[Connection]:
         """
-        Gets the locations in the grid where the winning tiles are.
+        Gets the locations in the grid where the winning connection(s) are.
 
-        :return: Returns the cells that make up the winning connection,
-                 or None of there is no winner.
+        There may be no winning connections
+        if the game is either not over or ended in a draw.
+
+        There may be multiple winning connections
+        if there are multiple 4-in-a-row's (or N-in-a-rows) on the grid.
+
+        :return: Returns the winning connection(s).
         """
         def tile(connect_four: ConnectFour, cell: Tuple[int, int]) -> Tile:
             return connect_four.grid[cell[0]][cell[1]]
 
+        connections = []
         for row in range(self.rows):
             for column in range(self.columns):
                 player = self.grid[row][column]
@@ -109,23 +116,29 @@ class ConnectFour:
                     continue
                 can_check_row = (column <= self.columns - self.connect_n)
                 can_check_column = (row <= self.rows - self.connect_n)
+                can_check_reverse_row = (column >= self.connect_n - 1)
                 # Check row
                 if can_check_row:
                     cells = tuple((row, column + i) for i in range(self.connect_n))
                     if all([tile(self, cell) == player for cell in cells]):
-                        return cells
+                        connections.append(cells)
                 # Check column
                 if can_check_column:
                     cells = tuple((row + i, column) for i in range(self.connect_n))
                     if all([tile(self, cell) == player for cell in cells]):
-                        return cells
-                # Check diagonal
+                        connections.append(cells)
+                # Check up-right diagonal
                 if can_check_row and can_check_column:
                     cells = tuple((row + i, column + i) for i in range(self.connect_n))
                     if all([tile(self, cell) == player for cell in cells]):
-                        return cells
+                        connections.append(cells)
+                # Check up-left diagonal
+                if can_check_reverse_row and can_check_column:
+                    cells = tuple((row + i, column - i) for i in range(self.connect_n))
+                    if all([tile(self, cell) == player for cell in cells]):
+                        connections.append(cells)
         # No winner (either the game is not over, or it ended in a draw)
-        return None
+        return connections
 
     def __str__(self) -> str:
         def player_to_str(player: Player):

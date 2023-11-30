@@ -36,7 +36,8 @@ if __name__ == '__main__':
         print('Player 2 (X\'s) won!')
     else:
         print('The game ended in a draw.')
-    # Print the winning cells.
+    # Print the winning connections.
     if winner is not None:
-        cells = game.winning_cells()
-        print(f'The winning cells were {cells}.')
+        connections = game.winning_connections()
+        print('The winning connections are:')
+        print('\n'.join(map(str, connections)))
