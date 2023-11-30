@@ -1,9 +1,15 @@
-from typing import List, Optional
+from typing import List, Tuple, Optional
 
 from player import Player
 
+# Type aliases for convenience
 
-Cells = List[Optional[Player]]
+Tile = Optional[Player]
+Tiles = List[Tile]
+TileGrid = List[Tiles]
+
+Cell = Tuple[int, int]
+Cells = Tuple[Cell]
 
 
 class ConnectFour:
@@ -17,7 +23,7 @@ class ConnectFour:
         :param columns: The number of columns.
         :param connect_n: How many tiles in a row to win.
         """
-        self.grid: List[Cells] = [[]]
+        self.grid: TileGrid = [[]]
         self.column_heights: List[int] = []
         self.rows: int = rows
         self.columns: int = columns
@@ -60,6 +66,7 @@ class ConnectFour:
     def is_over(self) -> bool:
         """
         Checks if the game is over or not.
+
         :return: True if the game is over, false otherwise.
         """
         is_winner = self.winner() is not None
@@ -76,25 +83,20 @@ class ConnectFour:
         :return: The winner of the game,
                  or None if the game is either not over or ended in a draw.
         """
+        cells = self.winning_cells()
+        if cells is None:
+            return None
+        return self.grid[cells[0][0]][cells[0][1]]
 
-        # Helper functions that return N cells in the row/column/diagonal,
-        # starting from grid[r][c].
-        def row_cells(game: ConnectFour, r: int, c: int) -> Optional[Cells]:
-            if c > game.columns - game.connect_n:
-                return None
-            return [game.grid[r][c + i] for i in range(game.connect_n)]
+    def winning_cells(self) -> Optional[Cells]:
+        """
+        Gets the locations in the grid where the winning tiles are.
 
-        def column_cells(game: ConnectFour, r: int, c: int) -> Optional[Cells]:
-            if r > game.rows - game.connect_n:
-                return None
-            return [game.grid[r + i][c] for i in range(self.connect_n)]
-
-        def diagonal_cells(game: ConnectFour, r: int, c: int) -> Optional[Cells]:
-            if r > game.rows - game.connect_n:
-                return None
-            if c > game.columns - game.connect_n:
-                return None
-            return [game.grid[r + i][c + i] for i in range(self.connect_n)]
+        :return: Returns the cells that make up the winning connection,
+                 or None of there is no winner.
+        """
+        def tile(connect_four: ConnectFour, cell: Tuple[int, int]) -> Tile:
+            return connect_four.grid[cell[0]][cell[1]]
 
         for row in range(self.rows):
             for column in range(self.columns):
@@ -102,18 +104,23 @@ class ConnectFour:
                 # Skip the cell if it is empty
                 if player is None:
                     continue
+                can_check_row = (column <= self.columns - self.connect_n)
+                can_check_column = (row <= self.rows - self.connect_n)
                 # Check row
-                cells = row_cells(self, row, column)
-                if cells is not None and all([cell == player for cell in cells]):
-                    return player
+                if can_check_row:
+                    cells = tuple((row, column + i) for i in range(self.connect_n))
+                    if all([tile(self, cell) == player for cell in cells]):
+                        return cells
                 # Check column
-                cells = column_cells(self, row, column)
-                if cells is not None and all([cell == player for cell in cells]):
-                    return player
+                if can_check_column:
+                    cells = tuple((row + i, column) for i in range(self.connect_n))
+                    if all([tile(self, cell) == player for cell in cells]):
+                        return cells
                 # Check diagonal
-                cells = diagonal_cells(self, row, column)
-                if cells is not None and all([cell == player for cell in cells]):
-                    return player
+                if can_check_row and can_check_column:
+                    cells = tuple((row + i, column + i) for i in range(self.connect_n))
+                    if all([tile(self, cell) == player for cell in cells]):
+                        return cells
         # No winner (either the game is not over, or it ended in a draw)
         return None
 
@@ -124,6 +131,9 @@ class ConnectFour:
             elif player == Player.TWO:
                 return 'X'
             return ' '
+
+        column_numbers = '   ' + '   '.join(map(str, range(self.columns)))
         rows = [' | '.join(map(player_to_str, row)) for row in self.grid]
+        rows = [f'{r:<2} {row}' for r, row in enumerate(rows)]
         rows.reverse()
-        return '\n'.join(rows)
+        return '\n'.join(rows + [column_numbers])

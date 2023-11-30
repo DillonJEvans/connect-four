@@ -1,3 +1,7 @@
+# A sample game of connect four in ascii.
+# This is meant to be a reference for how to use the ConnectFour class.
+
+
 from connect_four import ConnectFour, Player
 
 
@@ -13,6 +17,7 @@ if __name__ == '__main__':
     game = ConnectFour()
     # Main game loop.
     while not game.is_over():
+        print()
         print(f'Turn: {player_to_str(game.turn)} ({game.turn})')
         print(game)
         column = int(input('Enter a column (0-6): '))
@@ -20,8 +25,8 @@ if __name__ == '__main__':
             print(f'Column {column} is full.')
             continue
         game.place(column)
-        print()
     # Print the final state of the game.
+    print()
     print(game)
     # Print the winner.
     winner = game.winner()
@@ -31,3 +36,7 @@ if __name__ == '__main__':
         print('Player 2 (X\'s) won!')
     else:
         print('The game ended in a draw.')
+    # Print the winning cells.
+    if winner is not None:
+        cells = game.winning_cells()
+        print(f'The winning cells were {cells}.')
