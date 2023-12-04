@@ -25,9 +25,9 @@ class JoinableLobby:
                  port: int,
                  lobby_name: str,
                  host_name: str,
-                 rows: int,
-                 columns: int,
-                 connect_n: int):
+                 rows: int = 6,
+                 columns: int = 7,
+                 connect_n: int = 4) -> None:
         """
         Creates a lobby that can be joined.
 

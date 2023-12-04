@@ -7,5 +7,5 @@ class Player(Enum):
     ONE = False
     TWO = True
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.value)

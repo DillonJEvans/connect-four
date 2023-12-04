@@ -16,7 +16,8 @@ Connections = List[Connection]
 class ConnectFour:
     """Handles game logic for Connect 4."""
 
-    def __init__(self, rows: int = 6, columns: int = 7, connect_n: int = 4):
+    def __init__(self, rows: int = 6, columns: int = 7,
+                 connect_n: int = 4) -> None:
         """
         Creates a new game of Connect 4.
 
