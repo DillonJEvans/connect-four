@@ -1,8 +1,8 @@
 from struct import Struct
 
 
-MAX_LOBBY_NAME_BYTES: int = 64
-MAX_USER_NAME_BYTES: int = 64
+MAX_LOBBY_NAME_BYTES: int = 32
+MAX_USER_NAME_BYTES: int = 32
 
 #                       ! = Network (big) endian
 #                       H = port       : unsigned short
@@ -105,4 +105,12 @@ class JoinableLobby:
         return JoinableLobby(
             ip_address, port, lobby_name, host_name,
             rows, columns, connect_n
+        )
+
+    def __str__(self) -> str:
+        return (
+            f'{self.lobby_name:<{MAX_LOBBY_NAME_BYTES}} '
+            f'{self.host_name:<{MAX_USER_NAME_BYTES}} '
+            f'{self.rows} {self.columns} {self.connect_n} '
+            f'{self.port:>5} {self.ip_address}'
         )
