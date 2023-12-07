@@ -1,4 +1,5 @@
 from struct import Struct
+from typing import Tuple
 
 
 MAX_LOBBY_NAME_BYTES: int = 32
@@ -20,6 +21,7 @@ ERRORS = 'ignore'
 
 class JoinableLobby:
     """Contains information about a lobby and how to join it."""
+
     def __init__(self,
                  ip_address: str,
                  port: int,
@@ -46,6 +48,13 @@ class JoinableLobby:
         self.rows: int = rows
         self.columns: int = columns
         self.connect_n: int = connect_n
+
+    def address(self) -> Tuple[str, int]:
+        """
+        Returns the address tuple.
+        :return: The address tuple.
+        """
+        return self.ip_address, self.port
 
     def serialize(self,
                   packing_struct: Struct = PACKING_STRUCT,
