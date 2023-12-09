@@ -1,5 +1,8 @@
+import socket
 from struct import Struct
-from typing import Tuple
+from typing import Tuple, Optional
+
+from game_connection import GameConnection
 
 
 MAX_LOBBY_NAME_BYTES: int = 32
@@ -17,6 +20,8 @@ PACKING_STRUCT: Struct = Struct(PACKING_FORMAT)
 
 ENCODING = 'utf-8'
 ERRORS = 'ignore'
+
+JOINING_TIMEOUT: float = 5
 
 
 class JoinableLobby:
@@ -55,6 +60,22 @@ class JoinableLobby:
         :return: The address tuple.
         """
         return self.ip_address, self.port
+
+    def join(self,
+             timeout: float = JOINING_TIMEOUT) -> Optional[GameConnection]:
+        """
+        Joins the lobby.
+        :param timeout: How long to wait for the connection to succeed.
+        :return: The GameConnection connected to the host,
+                 or None if the connection failed or timed out.
+        """
+        game_socket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+        game_socket.settimeout(timeout)
+        try:
+            game_socket.connect(self.address())
+            return GameConnection(game_socket)
+        except TimeoutError:
+            return None
 
     def serialize(self,
                   packing_struct: Struct = PACKING_STRUCT,
