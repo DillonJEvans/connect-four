@@ -1,8 +1,9 @@
 from typing import Collection, Optional
 
 from game_connection import GameConnection
-from joinable_lobby import JoinableLobby, MAX_LOBBY_NAME_BYTES, MAX_USER_NAME_BYTES
+from joinable_lobby import JoinableLobby
 from lobby_manager import LobbyManager
+from network_settings import MAX_LOBBY_NAME_LENGTH, MAX_USERNAME_LENGTH
 
 
 def text_lobby() -> Optional[GameConnection]:
@@ -68,8 +69,8 @@ def print_lobbies(lobbies: Collection[JoinableLobby]) -> None:
 def print_lobby(lobby_number: int,
                 lobby: JoinableLobby,
                 lobby_number_len: int = 1,
-                lobby_name_len: int = MAX_LOBBY_NAME_BYTES,
-                host_name_len: int = MAX_USER_NAME_BYTES,
+                lobby_name_len: int = MAX_LOBBY_NAME_LENGTH,
+                host_name_len: int = MAX_USERNAME_LENGTH,
                 rows_len: int = len('Rows'),
                 columns_len: int = len('Columns')) -> None:
     print(

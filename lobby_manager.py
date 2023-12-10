@@ -4,12 +4,9 @@ import time
 from select import select
 from typing import Dict, List, Tuple
 
-import network_settings
-from joinable_lobby import JoinableLobby, PACKING_STRUCT
-
-
-# How many seconds without an update before a lobby times out.
-LOBBY_TIMEOUT: float = 5
+from joinable_lobby import JoinableLobby
+from network_settings import (ADVERTISING_HOST, ADVERTISING_PORT,
+                              LOBBY_STRUCT, LOBBY_TIMEOUT)
 
 
 class LobbyManager:
@@ -21,10 +18,10 @@ class LobbyManager:
         # Create the socket.
         listening_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
         listening_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        listening_socket.bind(('', network_settings.ADVERTISING_PORT))
+        listening_socket.bind(('', ADVERTISING_PORT))
         # Join the multicast group.
         group = socket.inet_pton(
-            socket.AF_INET6, network_settings.ADVERTISING_HOST
+            socket.AF_INET6, ADVERTISING_HOST
         )
         multicast_request = group + struct.pack('!I', 0)
         listening_socket.setsockopt(
@@ -54,7 +51,7 @@ class LobbyManager:
         readable = select([self.listening_socket], [], [], 0)[0]
         while readable:
             received, sender = self.listening_socket.recvfrom(
-                PACKING_STRUCT.size
+                LOBBY_STRUCT.size
             )
             # The lobby has closed, remove it.
             if received[:2] == b'00':

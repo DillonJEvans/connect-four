@@ -3,25 +3,8 @@ from struct import Struct
 from typing import Tuple, Optional
 
 from game_connection import GameConnection
-
-
-MAX_LOBBY_NAME_BYTES: int = 32
-MAX_USER_NAME_BYTES: int = 32
-
-#                       ! = Network (big) endian
-#                       H = port       : unsigned short
-# {MAX_LOBBY_NAME_BYTES}s = lobby_name : char[MAX_LOBBY_NAME_BYTES]
-#  {MAX_USER_NAME_BYTES}s = host_name  : char[MAX_USER_NAME_BYTES]
-#                       I = rows       : unsigned int
-#                       I = columns    : unsigned int
-#                       I = connect_n  : unsigned int
-PACKING_FORMAT: str = f'!H{MAX_LOBBY_NAME_BYTES}s{MAX_USER_NAME_BYTES}sIII'
-PACKING_STRUCT: Struct = Struct(PACKING_FORMAT)
-
-ENCODING = 'utf-8'
-ERRORS = 'ignore'
-
-JOINING_TIMEOUT: float = 5
+from network_settings import (JOINING_TIMEOUT, LOBBY_STRUCT,
+                              NAME_ENCODING, NAME_ERRORS)
 
 
 class JoinableLobby:
@@ -78,9 +61,9 @@ class JoinableLobby:
             return None
 
     def serialize(self,
-                  packing_struct: Struct = PACKING_STRUCT,
-                  encoding: str = ENCODING,
-                  errors: str = ERRORS) -> bytes:
+                  packing_struct: Struct = LOBBY_STRUCT,
+                  encoding: str = NAME_ENCODING,
+                  errors: str = NAME_ERRORS) -> bytes:
         """
         Serializes the object to bytes.
 
@@ -103,9 +86,9 @@ class JoinableLobby:
     @staticmethod
     def deserialize(ip_address: str,
                     source: bytes,
-                    packing_struct: Struct = PACKING_STRUCT,
-                    encoding: str = ENCODING,
-                    errors: str = ERRORS) -> 'JoinableLobby':
+                    packing_struct: Struct = LOBBY_STRUCT,
+                    encoding: str = NAME_ENCODING,
+                    errors: str = NAME_ERRORS) -> 'JoinableLobby':
         """
         Deserializes the object from bytes.
 
@@ -135,12 +118,4 @@ class JoinableLobby:
         return JoinableLobby(
             ip_address, port, lobby_name, host_name,
             rows, columns, connect_n
-        )
-
-    def __str__(self) -> str:
-        return (
-            f'{self.lobby_name:<{MAX_LOBBY_NAME_BYTES}} '
-            f'{self.host_name:<{MAX_USER_NAME_BYTES}} '
-            f'{self.rows} {self.columns} {self.connect_n} '
-            f'{self.port:>5} {self.ip_address}'
         )
