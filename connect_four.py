@@ -149,8 +149,7 @@ class ConnectFour:
                 return 'X'
             return ' '
 
-        column_numbers = '   ' + '   '.join(map(str, range(self.columns)))
-        rows = [' | '.join(map(player_to_str, row)) for row in self.grid]
-        rows = [f'{r:<2} {row}' for r, row in enumerate(rows)]
+        column_numbers = '  ' + '   '.join(map(str, range(1, self.columns + 1)))
+        rows = ['| ' + ' | '.join(map(player_to_str, row)) + ' |' for row in self.grid]
         rows.reverse()
         return '\n'.join(rows + [column_numbers])

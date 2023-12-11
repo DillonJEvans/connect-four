@@ -15,6 +15,7 @@ def text_host(username: str,
     hosted_lobby.start_advertising()
     hosted_lobby.start_accepting()
     # Wait for a connection.
+    print('Waiting for a player to join...')
     hosted_lobby.accepting_thread.stop_event.wait()
     # Get the updated username and the new game connection.
     username = hosted_lobby.info.host_name

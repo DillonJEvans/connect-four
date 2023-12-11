@@ -2,6 +2,7 @@ import socket
 from struct import Struct
 from typing import Tuple, Optional
 
+from connect_four import Player
 from game_connection import GameConnection
 from network_settings import (JOINING_TIMEOUT, LOBBY_STRUCT,
                               NAME_ENCODING, NAME_ERRORS)
@@ -45,6 +46,7 @@ class JoinableLobby:
         return self.ip_address, self.port
 
     def join(self,
+             username: str,
              timeout: float = JOINING_TIMEOUT) -> Optional[GameConnection]:
         """
         Joins the lobby.
@@ -56,7 +58,8 @@ class JoinableLobby:
         game_socket.settimeout(timeout)
         try:
             game_socket.connect(self.address())
-            return GameConnection(game_socket)
+            return GameConnection(
+                game_socket, Player.TWO, username, self.host_name)
         except TimeoutError:
             return None
 

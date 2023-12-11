@@ -26,7 +26,7 @@ def text_lobby(username: str) -> Optional[GameConnection]:
         command = user_input.strip().lower()
         # Join
         if is_command(command, 'join'):
-            game_connection = join(command, lobbies)
+            game_connection = join(command, lobbies, username)
         # Host
         elif is_command(command, 'host'):
             lobby_name = user_input[len('host') + 1:]
@@ -52,7 +52,8 @@ def text_lobby(username: str) -> Optional[GameConnection]:
 
 
 def join(command: str,
-         lobbies: List[JoinableLobby]) -> Optional[GameConnection]:
+         lobbies: List[JoinableLobby],
+         username: str) -> Optional[GameConnection]:
     lobby_number = command[len('join') + 1:]
     # Make sure there is at least one lobby to join.
     if not lobbies:
@@ -77,7 +78,7 @@ def join(command: str,
         )
         return None
     # Try and join the specified lobby.
-    return lobbies[lobby_number].join()
+    return lobbies[lobby_number].join(username)
 
 
 def print_commands() -> None:

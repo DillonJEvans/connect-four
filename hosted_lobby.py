@@ -3,6 +3,7 @@ import struct
 from typing import Optional
 
 from accept_thread import AcceptThread
+from connect_four import Player
 from game_connection import GameConnection
 from joinable_lobby import JoinableLobby
 from looping_thread import LoopingThread
@@ -54,7 +55,11 @@ class HostedLobby:
     def accepted_connection(self) -> Optional[GameConnection]:
         if not self.accepting_thread.connected():
             return None
-        return GameConnection(self.accepting_thread.connected_socket)
+        return GameConnection(
+            self.accepting_thread.connected_socket,
+            Player.ONE,
+            self.info.host_name
+        )
 
     def close(self) -> None:
         self.stop_advertising()
