@@ -1,16 +1,21 @@
+from time import sleep
 from typing import Collection, List, Optional
 
 from game_connection import GameConnection
 from joinable_lobby import JoinableLobby
 from lobby_manager import LobbyManager
-from network_settings import MAX_LOBBY_NAME_LENGTH, MAX_USERNAME_LENGTH
-from text_name import username_command
+from network_settings import MAX_LOBBY_NAME_LENGTH, MAX_USERNAME_LENGTH, ADVERTISING_WAIT_TIME
+from text_host import text_host
+from text_name import is_valid_lobby_name, username_command
 
 
 def text_lobby(username: str) -> Optional[GameConnection]:
     lobby_manager = LobbyManager()
     game_connection = None
     command = ''
+    # Wait enough time for existing lobbies to advertise to us.
+    print('Looking for lobbies...')
+    sleep(ADVERTISING_WAIT_TIME + 0.1)
     while command != 'exit' and game_connection is None:
         lobbies = lobby_manager.get_lobbies()
         print('\n')
@@ -20,20 +25,24 @@ def text_lobby(username: str) -> Optional[GameConnection]:
         user_input = input('command> ')
         command = user_input.strip().lower()
         # Join
-        if command[:len('join')] == 'join':
+        if is_command(command, 'join'):
             game_connection = join(command, lobbies)
         # Host
-        elif command == 'host':
-            pass
+        elif is_command(command, 'host'):
+            lobby_name = user_input[len('host') + 1:]
+            if not lobby_name or is_valid_lobby_name(lobby_name):
+                username, game_connection = text_host(
+                    username, lobby_name
+                )
         # Username
-        elif command[:len('username')] == 'username':
+        elif is_command(command, 'username'):
             username = username_command(user_input, username)
         # Help
-        elif command == 'help':
+        elif is_command(command, 'help'):
             print()
             print_commands()
         # Refresh and Exit
-        elif command == 'refresh' or command == 'exit':
+        elif not command or is_command(command, 'refresh') or is_command(command, 'exit'):
             pass
         # Unknown
         else:
@@ -61,9 +70,9 @@ def join(command: str,
     # 0-index the lobby number.
     lobby_number -= 1
     # Make sure the provided lobby number is in range.
-    if 0 <= lobby_number < len(lobbies):
+    if lobby_number < 0 or lobby_number >= len(lobbies):
         print(
-            f'{lobby_number} is not a valid lobby number. '
+            f'{lobby_number + 1} is not a valid lobby number. '
             f'Currently there are lobbies 1 to {len(lobbies)}.'
         )
         return None
@@ -116,3 +125,7 @@ def print_lobby(lobby_number: int,
         f'{lobby.columns:>{columns_len}} | '
         f'Connect {lobby.connect_n}'
     )
+
+
+def is_command(string: str, command: str):
+    return string[:len(command)] == command
