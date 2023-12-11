@@ -78,7 +78,11 @@ def join(command: str,
         )
         return None
     # Try and join the specified lobby.
-    return lobbies[lobby_number].join(username)
+    try:
+        return lobbies[lobby_number].join(username)
+    except ConnectionRefusedError:
+        print('Could not connect to that lobby.')
+        return None
 
 
 def print_commands() -> None:

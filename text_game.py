@@ -42,7 +42,7 @@ def text_game(game_connection: GameConnection) -> None:
     # Print the winner.
     winner = game.winner()
     if winner is None:
-        print('THe game ended in a draw.')
+        print('The game ended in a draw.')
     elif winner == game_connection.player:
         print('You won!')
     else:
