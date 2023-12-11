@@ -1,12 +1,13 @@
-from typing import Collection, Optional
+from typing import Collection, List, Optional
 
 from game_connection import GameConnection
 from joinable_lobby import JoinableLobby
 from lobby_manager import LobbyManager
 from network_settings import MAX_LOBBY_NAME_LENGTH, MAX_USERNAME_LENGTH
+from text_name import username_command
 
 
-def text_lobby() -> Optional[GameConnection]:
+def text_lobby(username: str) -> Optional[GameConnection]:
     lobby_manager = LobbyManager()
     game_connection = None
     command = ''
@@ -18,31 +19,65 @@ def text_lobby() -> Optional[GameConnection]:
         print('Enter "help" for help.')
         user_input = input('command> ')
         command = user_input.strip().lower()
-        if command[:4] == 'join':
-            try:
-                lobby_number = int(command[4:])
-                game_connection = lobbies[lobby_number].join()
-            except:
-                print('The "join" command needs to be followed by a lobby number.')
+        # Join
+        if command[:len('join')] == 'join':
+            game_connection = join(command, lobbies)
+        # Host
         elif command == 'host':
             pass
+        # Username
+        elif command[:len('username')] == 'username':
+            username = username_command(user_input, username)
+        # Help
         elif command == 'help':
             print()
             print_commands()
+        # Refresh and Exit
         elif command == 'refresh' or command == 'exit':
             pass
+        # Unknown
         else:
             print('Unknown command. Try entering "help" for a list of commands.')
     lobby_manager.close()
     return game_connection
 
 
+def join(command: str,
+         lobbies: List[JoinableLobby]) -> Optional[GameConnection]:
+    lobby_number = command[len('join') + 1:]
+    # Make sure there is at least one lobby to join.
+    if not lobbies:
+        print('There are currently no lobbies to join.')
+        return None
+    # Check if a lobby number was provided.
+    if not lobby_number:
+        print('The "join" command needs to be followed by a lobby number.')
+    # Make sure the lobby number is a number.
+    try:
+        lobby_number = int(lobby_number)
+    except ValueError:
+        print(f'{lobby_number} is not a lobby number.')
+        return None
+    # 0-index the lobby number.
+    lobby_number -= 1
+    # Make sure the provided lobby number is in range.
+    if 0 <= lobby_number < len(lobbies):
+        print(
+            f'{lobby_number} is not a valid lobby number. '
+            f'Currently there are lobbies 1 to {len(lobbies)}.'
+        )
+        return None
+    # Try and join the specified lobby.
+    return lobbies[lobby_number].join()
+
+
 def print_commands() -> None:
-    print('refresh  = Refreshes the list of lobbies.')
-    print('join [n] = Joins the Nth lobby in the list.')
-    print('host     = Hosts a lobby.')
-    print('help     = Shows the different commands.')
-    print('exit     = Exits the game.')
+    print('refresh          =  Refreshes the list of lobbies.')
+    print('join [n]         =  Joins the Nth lobby in the list.')
+    print('host             =  Hosts a lobby.')
+    print('username [name]  =  Changes your username.')
+    print('help             =  Shows the different commands.')
+    print('exit             =  Exits the game.')
 
 
 def print_lobbies(lobbies: Collection[JoinableLobby]) -> None:
